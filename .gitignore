@@ -1,0 +1,15 @@
+﻿*.json
+*.log
+*.lock
+*.o
+*.cpu
+*.uvprojx
+*.scvd
+*.uvoptx
+*.dep
+*.htm
+*.crf
+*.axf
+*.lnp
+*.map
+project/Objects
