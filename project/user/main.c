@@ -16,9 +16,16 @@ int main()
 	tim3_init();
 	adc_init();
 
+	BSP_ADC_Dual_Start();
+
+
 	while(1)
 	{
+		uint16_t a1, a2;
+		if (BSP_ADC_Dual_GetLatest(&a1, &a2))
+		{
 
+		}
 	}
 
 }
