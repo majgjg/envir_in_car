@@ -4,7 +4,7 @@
 
 #define WIFI_SSID		"vivo X200 Pro mini"
 #define WIFI_PASS		"88888888"
-#define SERVER_IP		"192.168.55.17"
+#define SERVER_IP		"192.168.55.17"                                                                                                                                                                   
 #define SERVER_PORT		9000
 
 
@@ -35,7 +35,7 @@ static void uart_rxbuf_push(uint8_t rx_byte)
 	}
 	
 	uart_rx_ringbuf[rx_write_idx] = rx_byte;
-	rx_write_idx = 0;
+	rx_write_idx = next_write_idx;
 }
 
 //Çå³ý»º³åÇø
@@ -238,8 +238,8 @@ void ESP_Task()
 					 SERVER_IP, SERVER_PORT);
 			esp_send_at_cmd(cmd);
 
-			if (esp_wait_response("CONNECT", 6000) == ESP_OK ||
-				esp_wait_response("OK", 6000) == ESP_OK)
+			if (esp_wait_response("CONNECT", 3000) == ESP_OK ||
+				esp_wait_response("OK", 3000) == ESP_OK)
 			{
 				esp_state = ESP_STATE_RUN;
 				last_send_tick = HAL_GetTick();
