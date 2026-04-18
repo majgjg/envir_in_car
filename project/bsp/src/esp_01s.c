@@ -1,14 +1,15 @@
 #include "esp_01s.h"
 #include <string.h>
 #include <stdio.h>
+#include "telemetry.h"
 
 #define WIFI_SSID		"vivo X200 Pro mini"
 #define WIFI_PASS		"88888888"
-#define SERVER_IP		"192.168.55.17"                                                                                                                                                                   
+#define SERVER_IP		"192.168.221.17"                                                                                                                                                                                 
 #define SERVER_PORT		9000
 
 
-//Ω” ’«¯µƒª∑–Œª∫≥Â
+//Êé•Êî∂Âå∫ÁöÑÁéØÂΩ¢ÁºìÂÜ≤
 #define UART_RX_BUF_SIZE			1024
 static volatile uint16_t rx_write_idx = 0,rx_read_idx = 0;
 static uint8_t uart_rx_ringbuf[UART_RX_BUF_SIZE];
@@ -38,14 +39,14 @@ static void uart_rxbuf_push(uint8_t rx_byte)
 	rx_write_idx = next_write_idx;
 }
 
-//«Â≥˝ª∫≥Â«¯
+//Ê∏ÖÈô§ÁºìÂÜ≤Âå?
 static void uart_rxbuf_clear(void)
 {
 	rx_read_idx = 0;
 	rx_write_idx = 0;
 }
 
-//≤È’“πÿº¸◊÷
+//Êü•ÊâæÂÖ≥ÈîÆÂ≠?
 static int uart_rxbuf_contains(const char *keyword)
 {
 	static char temp[UART_RX_BUF_SIZE + 1];
@@ -65,13 +66,13 @@ static int uart_rxbuf_contains(const char *keyword)
 	return (strstr(temp,keyword) != NULL);
 }
 
-//uartΩ” ’÷–∂œ
+//uartÊé•Êî∂‰∏≠Êñ≠
 static void uart_rx_restart(void)
 {
 	HAL_UART_Receive_IT(esp_uart, &uart_rx_byte, 1);
 }
 
-//uartÕÍ≥…Ω” ’∫Û≤˙…˙ªÿµ˜
+//uartÂÆåÊàêÊé•Êî∂Âêé‰∫ßÁîüÂõûË∞?
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(esp_uart && huart->Instance == esp_uart->Instance)
@@ -84,7 +85,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 
 
-//AT÷∏¡Ó∫Ø ˝
+//ATÊåá‰ª§ÂèëÈÄ?
 static void esp_uart_send(const char *str)
 {
 	HAL_UART_Transmit(esp_uart, (uint8_t *)str, strlen(str),2000);
@@ -96,7 +97,7 @@ static void esp_send_at_cmd(const char *cmd)
 	esp_uart_send("\r\n");
 }
 
-//esp∑µªÿπÿº¸◊÷
+//Á≠âÂæÖÂÖ≥ÈîÆÂ≠óÔºàÁÆÄÂçïËΩÆËØ¢Ôºâ
 static esp_status_t esp_wait_response(const char *keyword, uint32_t timeout_ms)
 {
 	uint32_t start = HAL_GetTick();
@@ -113,7 +114,7 @@ static esp_status_t esp_wait_response(const char *keyword, uint32_t timeout_ms)
 }
 
 
-//esp◊¥Ã¨ª˙
+//ESP ËøûÊé•‰∏é‰∏äÊä•Áä∂ÊÄÅÊú∫
 typedef enum
 {
 	ESP_STATE_AT = 0,
@@ -128,7 +129,7 @@ typedef enum
 static esp_state_t esp_state = ESP_STATE_AT;
 static uint32_t last_send_tick = 0;
 
-//∑¢ÀÕ“ª–– ˝æ›,“‘\nΩ·Œ≤
+//ÂèëÈÄÅ‰∏ÄË°åÊï∞ÊçÆÔºà‰ª•\\nÁªìÂ∞æÔº?
 static esp_status_t esp_tcp_send_line(const char *line)
 {
 	char cmd[32];
@@ -149,7 +150,7 @@ static esp_status_t esp_tcp_send_line(const char *line)
 }
 
 
-//Ω”ø⁄
+//ÂàùÂßãÂåñÔºöÁªëÂÆöUARTÂπ∂ÂêØÂä®Êé•Êî∂‰∏≠Êñ?
 void ESP_Init(UART_HandleTypeDef *huart)
 {
 	esp_uart = huart;
@@ -159,12 +160,13 @@ void ESP_Init(UART_HandleTypeDef *huart)
 	
 }
 
-//◊¥Ã¨ª˙
+//Áä∂ÊÄÅÊú∫‰∏ªÂæ™ÁéØÔºöÊåâÊ≠•È™§ÂÖ•ÁΩë„ÄÅÂª∫Ëøû„ÄÅÂèëÈÄ?
 void ESP_Task()
 {
 	switch(esp_state)
 	{
 		case ESP_STATE_AT:
+/* ÊµãËØïAT */
 			uart_rxbuf_clear();
 			esp_send_at_cmd("AT");
 			if(esp_wait_response("OK", 1000) == ESP_OK)
@@ -180,6 +182,7 @@ void ESP_Task()
 			break;
 
 		case ESP_STATE_SET_MODE:
+/* ËÆæÁΩÆ‰∏∫STAÊ®°Âºè */
 			uart_rxbuf_clear();
 			esp_send_at_cmd("AT+CWMODE=1");
 			if (esp_wait_response("OK", 1000) == ESP_OK)
@@ -194,7 +197,8 @@ void ESP_Task()
 
 			break;
 
-		case ESP_STATE_JOIN_AP: 
+		case ESP_STATE_JOIN_AP:
+/* ËøûÊé•AP */ 
 		{
 			char cmd[128];
 			uart_rxbuf_clear();
@@ -215,6 +219,7 @@ void ESP_Task()
 		}
 
 		case ESP_STATE_SET_MUX:
+/* ÂçïËøûÊé•Ê®°Âº?*/
 			uart_rxbuf_clear();
 			esp_send_at_cmd("AT+CIPMUX=0");
 			if (esp_wait_response("OK", 1000) == ESP_OK)
@@ -230,6 +235,7 @@ void ESP_Task()
 			break;
 
 		case ESP_STATE_TCP_CONNECT:
+/* ËøûÊé•TCPÊúçÂä°Âô?*/
 		{
 			char cmd[96];
 			uart_rxbuf_clear();
@@ -252,22 +258,24 @@ void ESP_Task()
 		}
 
 		case ESP_STATE_RUN:
+/* ÂÆöÊó∂‰∏äÊä•ÔºàÊØè1ÁßíÔºâ */
 			if (HAL_GetTick() - last_send_tick >= 1000)
 			{
 				last_send_tick = HAL_GetTick();
 
-				char line[64];
-				snprintf(line, sizeof(line),
-						"ADC1=%u,ADC2=%u\n", 1234u, 2345u);
-
-				if (esp_tcp_send_line(line) != ESP_OK)
+				const char *line = TEL_GetLastLine();
+				if (line && line[0] != '\0')
 				{
-					esp_state = ESP_STATE_TCP_CONNECT;
+					if (esp_tcp_send_line(line) != ESP_OK)
+					{
+						esp_state = ESP_STATE_TCP_CONNECT;
+					}
 				}
 			}
 			break;
 
 		case ESP_STATE_RETRY:
+/* Â§±Ë¥•ÂêéÂª∂Êó∂ÈáçËØ?*/
 			HAL_Delay(500);
 			esp_state = ESP_STATE_AT;
 			break;
@@ -277,6 +285,9 @@ void ESP_Task()
 			break;
     }
 }
+
+
+
 
 
 

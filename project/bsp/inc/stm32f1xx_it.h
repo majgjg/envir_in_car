@@ -4,6 +4,6 @@
 #include "stm32f1xx_hal.h"
 
 void SysTick_Handler(void);
-void DMA1_Channel1_IRQHandler(void);
+void USART1_IRQHandler(void);
 
 #endif

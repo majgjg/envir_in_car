@@ -1,9 +1,12 @@
 #include "bsp_tim.h"
 
+
 TIM_HandleTypeDef htim3;
 
 void tim3_init(void)
 {
+	__HAL_RCC_TIM3_CLK_ENABLE();
+
     htim3.Instance = TIM3;
     htim3.Init.Prescaler = 71;
     htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
